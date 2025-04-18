@@ -1,0 +1,42 @@
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Python egg files
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Test outputs
+tests/output/
+tests/logs/
+*.xml
+
+# IDE and editor files
+.vscode/
+.idea/
+*.iml
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+
+# Grafana and Jenkins artifacts
+grafana/*.db
+ci/scripts/*.sh~

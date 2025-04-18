@@ -1,125 +1,125 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<robot generator="Robot 7.2.2 (Python 3.13.3 on darwin)" generated="2025-04-18T23:37:38.685353" rpa="false" schemaversion="5">
+<robot generator="Robot 7.2.2 (Python 3.13.3 on darwin)" generated="2025-04-19T00:34:54.228490" rpa="false" schemaversion="5">
 <suite id="s1" name="Tests" source="/Users/raghav/Desktop/backend/cpap-firmware-simulator/tests">
 <suite id="s1-s1" name="Firmware Failure Test" source="/Users/raghav/Desktop/backend/cpap-firmware-simulator/tests/firmware_failure_test.robot">
 <test id="s1-s1-t1" name="Simulate Update Interruption" line="6">
 <kw name="Run Process" owner="Process">
-<msg time="2025-04-18T23:37:38.709357" level="INFO">Starting process:
+<msg time="2025-04-19T00:34:54.254629" level="INFO">Starting process:
 python3 scripts/simulate_failure.py</msg>
-<msg time="2025-04-18T23:37:38.712358" level="INFO">Waiting for process to complete.</msg>
-<msg time="2025-04-18T23:37:38.772675" level="INFO">Process completed.</msg>
+<msg time="2025-04-19T00:34:54.257763" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-19T00:34:54.315327" level="INFO">Process completed.</msg>
 <arg>python3</arg>
 <arg>scripts/simulate_failure.py</arg>
 <doc>Runs a process and waits for it to complete.</doc>
-<status status="PASS" start="2025-04-18T23:37:38.709148" elapsed="0.063801"/>
+<status status="PASS" start="2025-04-19T00:34:54.254411" elapsed="0.061118"/>
 </kw>
 <kw name="Run Process" owner="Process">
-<msg time="2025-04-18T23:37:38.773780" level="INFO">Starting process:
+<msg time="2025-04-19T00:34:54.316237" level="INFO">Starting process:
 python3 scripts/validate_firmware.py</msg>
-<msg time="2025-04-18T23:37:38.776555" level="INFO">Waiting for process to complete.</msg>
-<msg time="2025-04-18T23:37:38.832184" level="INFO">Process completed.</msg>
+<msg time="2025-04-19T00:34:54.318873" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-19T00:34:54.376902" level="INFO">Process completed.</msg>
 <arg>python3</arg>
 <arg>scripts/validate_firmware.py</arg>
 <doc>Runs a process and waits for it to complete.</doc>
-<status status="PASS" start="2025-04-18T23:37:38.773465" elapsed="0.058910"/>
+<status status="PASS" start="2025-04-19T00:34:54.315941" elapsed="0.061157"/>
 </kw>
-<status status="PASS" start="2025-04-18T23:37:38.708456" elapsed="0.124257"/>
+<status status="PASS" start="2025-04-19T00:34:54.253746" elapsed="0.123677"/>
 </test>
-<status status="PASS" start="2025-04-18T23:37:38.702553" elapsed="0.130604"/>
+<status status="PASS" start="2025-04-19T00:34:54.247596" elapsed="0.130258"/>
 </suite>
 <suite id="s1-s2" name="Firmware Recovery Test" source="/Users/raghav/Desktop/backend/cpap-firmware-simulator/tests/firmware_recovery_test.robot">
 <test id="s1-s2-t1" name="Rollback After Failed Update" line="6">
 <kw name="Run Process" owner="Process">
-<msg time="2025-04-18T23:37:38.835398" level="INFO">Starting process:
+<msg time="2025-04-19T00:34:54.380194" level="INFO">Starting process:
 python3 scripts/simulate_failure.py</msg>
-<msg time="2025-04-18T23:37:38.838149" level="INFO">Waiting for process to complete.</msg>
-<msg time="2025-04-18T23:37:38.894448" level="INFO">Process completed.</msg>
+<msg time="2025-04-19T00:34:54.382979" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-19T00:34:54.441410" level="INFO">Process completed.</msg>
 <arg>python3</arg>
 <arg>scripts/simulate_failure.py</arg>
 <doc>Runs a process and waits for it to complete.</doc>
-<status status="PASS" start="2025-04-18T23:37:38.835239" elapsed="0.059412"/>
+<status status="PASS" start="2025-04-19T00:34:54.380024" elapsed="0.061603"/>
 </kw>
 <kw name="Run Process" owner="Process">
-<msg time="2025-04-18T23:37:38.895302" level="INFO">Starting process:
+<msg time="2025-04-19T00:34:54.442272" level="INFO">Starting process:
 python3 scripts/validate_firmware.py</msg>
-<msg time="2025-04-18T23:37:38.897967" level="INFO">Waiting for process to complete.</msg>
-<msg time="2025-04-18T23:37:38.951523" level="INFO">Process completed.</msg>
+<msg time="2025-04-19T00:34:54.444841" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-19T00:34:54.500188" level="INFO">Process completed.</msg>
 <arg>python3</arg>
 <arg>scripts/validate_firmware.py</arg>
 <doc>Runs a process and waits for it to complete.</doc>
-<status status="PASS" start="2025-04-18T23:37:38.895031" elapsed="0.056689"/>
+<status status="PASS" start="2025-04-19T00:34:54.441995" elapsed="0.058369"/>
 </kw>
 <kw name="Run Process" owner="Process">
-<msg time="2025-04-18T23:37:38.952315" level="INFO">Starting process:
+<msg time="2025-04-19T00:34:54.500995" level="INFO">Starting process:
 python3 scripts/rollback.py</msg>
-<msg time="2025-04-18T23:37:38.955030" level="INFO">Waiting for process to complete.</msg>
-<msg time="2025-04-18T23:37:40.163851" level="INFO">Process completed.</msg>
+<msg time="2025-04-19T00:34:54.503639" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-19T00:34:54.742903" level="INFO">Process completed.</msg>
 <arg>python3</arg>
 <arg>scripts/rollback.py</arg>
 <doc>Runs a process and waits for it to complete.</doc>
-<status status="PASS" start="2025-04-18T23:37:38.952064" elapsed="1.211992"/>
+<status status="PASS" start="2025-04-19T00:34:54.500742" elapsed="0.242373"/>
 </kw>
 <kw name="Run Process" owner="Process">
-<msg time="2025-04-18T23:37:40.164689" level="INFO">Starting process:
+<msg time="2025-04-19T00:34:54.743774" level="INFO">Starting process:
 python3 scripts/validate_firmware.py</msg>
-<msg time="2025-04-18T23:37:40.167187" level="INFO">Waiting for process to complete.</msg>
-<msg time="2025-04-18T23:37:40.220808" level="INFO">Process completed.</msg>
+<msg time="2025-04-19T00:34:54.746554" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-19T00:34:54.800678" level="INFO">Process completed.</msg>
 <arg>python3</arg>
 <arg>scripts/validate_firmware.py</arg>
 <doc>Runs a process and waits for it to complete.</doc>
-<status status="PASS" start="2025-04-18T23:37:40.164408" elapsed="0.056589"/>
+<status status="PASS" start="2025-04-19T00:34:54.743468" elapsed="0.057373"/>
 </kw>
 <kw name="Run Process" owner="Process">
-<msg time="2025-04-18T23:37:40.221625" level="INFO">Starting process:
+<msg time="2025-04-19T00:34:54.801500" level="INFO">Starting process:
 python3 scripts/checksum_validator.py</msg>
-<msg time="2025-04-18T23:37:40.224287" level="INFO">Waiting for process to complete.</msg>
-<msg time="2025-04-18T23:37:40.285119" level="INFO">Process completed.</msg>
+<msg time="2025-04-19T00:34:54.804204" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-19T00:34:54.864883" level="INFO">Process completed.</msg>
 <arg>python3</arg>
 <arg>scripts/checksum_validator.py</arg>
 <doc>Runs a process and waits for it to complete.</doc>
-<status status="PASS" start="2025-04-18T23:37:40.221355" elapsed="0.063947"/>
+<status status="PASS" start="2025-04-19T00:34:54.801204" elapsed="0.063887"/>
 </kw>
-<status status="PASS" start="2025-04-18T23:37:38.834993" elapsed="1.450619"/>
+<status status="PASS" start="2025-04-19T00:34:54.379767" elapsed="0.485643"/>
 </test>
-<status status="PASS" start="2025-04-18T23:37:38.833524" elapsed="1.452367"/>
+<status status="PASS" start="2025-04-19T00:34:54.378203" elapsed="0.487492"/>
 </suite>
 <suite id="s1-s3" name="Firmware Update Test" source="/Users/raghav/Desktop/backend/cpap-firmware-simulator/tests/firmware_update_test.robot">
 <test id="s1-s3-t1" name="Valid Firmware Update" line="6">
 <kw name="Run Process" owner="Process">
-<msg time="2025-04-18T23:37:40.288180" level="INFO">Starting process:
+<msg time="2025-04-19T00:34:54.868267" level="INFO">Starting process:
 python3 scripts/firmware_updater.py</msg>
-<msg time="2025-04-18T23:37:40.291138" level="INFO">Waiting for process to complete.</msg>
-<msg time="2025-04-18T23:37:40.541981" level="INFO">Process completed.</msg>
+<msg time="2025-04-19T00:34:54.871204" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-19T00:34:55.094898" level="INFO">Process completed.</msg>
 <arg>python3</arg>
 <arg>scripts/firmware_updater.py</arg>
 <doc>Runs a process and waits for it to complete.</doc>
-<status status="PASS" start="2025-04-18T23:37:40.288014" elapsed="0.254170"/>
+<status status="PASS" start="2025-04-19T00:34:54.868071" elapsed="0.227045"/>
 </kw>
 <kw name="Run Process" owner="Process">
-<msg time="2025-04-18T23:37:40.542830" level="INFO">Starting process:
+<msg time="2025-04-19T00:34:55.095762" level="INFO">Starting process:
 python3 scripts/validate_firmware.py</msg>
-<msg time="2025-04-18T23:37:40.545623" level="INFO">Waiting for process to complete.</msg>
-<msg time="2025-04-18T23:37:40.602650" level="INFO">Process completed.</msg>
+<msg time="2025-04-19T00:34:55.098490" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-19T00:34:55.151903" level="INFO">Process completed.</msg>
 <arg>python3</arg>
 <arg>scripts/validate_firmware.py</arg>
 <doc>Runs a process and waits for it to complete.</doc>
-<status status="PASS" start="2025-04-18T23:37:40.542554" elapsed="0.060279"/>
+<status status="PASS" start="2025-04-19T00:34:55.095474" elapsed="0.056586"/>
 </kw>
 <kw name="Run Process" owner="Process">
-<msg time="2025-04-18T23:37:40.603453" level="INFO">Starting process:
+<msg time="2025-04-19T00:34:55.152654" level="INFO">Starting process:
 python3 scripts/checksum_validator.py</msg>
-<msg time="2025-04-18T23:37:40.606062" level="INFO">Waiting for process to complete.</msg>
-<msg time="2025-04-18T23:37:40.666731" level="INFO">Process completed.</msg>
+<msg time="2025-04-19T00:34:55.155392" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-19T00:34:55.214344" level="INFO">Process completed.</msg>
 <arg>python3</arg>
 <arg>scripts/checksum_validator.py</arg>
 <doc>Runs a process and waits for it to complete.</doc>
-<status status="PASS" start="2025-04-18T23:37:40.603184" elapsed="0.063711"/>
+<status status="PASS" start="2025-04-19T00:34:55.152397" elapsed="0.062107"/>
 </kw>
-<status status="PASS" start="2025-04-18T23:37:40.287775" elapsed="0.379414"/>
+<status status="PASS" start="2025-04-19T00:34:54.867815" elapsed="0.346992"/>
 </test>
-<status status="PASS" start="2025-04-18T23:37:40.286213" elapsed="0.381268"/>
+<status status="PASS" start="2025-04-19T00:34:54.866008" elapsed="0.349046"/>
 </suite>
-<status status="PASS" start="2025-04-18T23:37:38.686271" elapsed="1.981550"/>
+<status status="PASS" start="2025-04-19T00:34:54.229349" elapsed="0.986046"/>
 </suite>
 <statistics>
 <total>
