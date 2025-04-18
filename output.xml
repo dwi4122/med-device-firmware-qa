@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 7.2.2 (Python 3.13.3 on darwin)" generated="2025-04-18T23:37:38.685353" rpa="false" schemaversion="5">
+<suite id="s1" name="Tests" source="/Users/raghav/Desktop/backend/cpap-firmware-simulator/tests">
+<suite id="s1-s1" name="Firmware Failure Test" source="/Users/raghav/Desktop/backend/cpap-firmware-simulator/tests/firmware_failure_test.robot">
+<test id="s1-s1-t1" name="Simulate Update Interruption" line="6">
+<kw name="Run Process" owner="Process">
+<msg time="2025-04-18T23:37:38.709357" level="INFO">Starting process:
+python3 scripts/simulate_failure.py</msg>
+<msg time="2025-04-18T23:37:38.712358" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-18T23:37:38.772675" level="INFO">Process completed.</msg>
+<arg>python3</arg>
+<arg>scripts/simulate_failure.py</arg>
+<doc>Runs a process and waits for it to complete.</doc>
+<status status="PASS" start="2025-04-18T23:37:38.709148" elapsed="0.063801"/>
+</kw>
+<kw name="Run Process" owner="Process">
+<msg time="2025-04-18T23:37:38.773780" level="INFO">Starting process:
+python3 scripts/validate_firmware.py</msg>
+<msg time="2025-04-18T23:37:38.776555" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-18T23:37:38.832184" level="INFO">Process completed.</msg>
+<arg>python3</arg>
+<arg>scripts/validate_firmware.py</arg>
+<doc>Runs a process and waits for it to complete.</doc>
+<status status="PASS" start="2025-04-18T23:37:38.773465" elapsed="0.058910"/>
+</kw>
+<status status="PASS" start="2025-04-18T23:37:38.708456" elapsed="0.124257"/>
+</test>
+<status status="PASS" start="2025-04-18T23:37:38.702553" elapsed="0.130604"/>
+</suite>
+<suite id="s1-s2" name="Firmware Recovery Test" source="/Users/raghav/Desktop/backend/cpap-firmware-simulator/tests/firmware_recovery_test.robot">
+<test id="s1-s2-t1" name="Rollback After Failed Update" line="6">
+<kw name="Run Process" owner="Process">
+<msg time="2025-04-18T23:37:38.835398" level="INFO">Starting process:
+python3 scripts/simulate_failure.py</msg>
+<msg time="2025-04-18T23:37:38.838149" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-18T23:37:38.894448" level="INFO">Process completed.</msg>
+<arg>python3</arg>
+<arg>scripts/simulate_failure.py</arg>
+<doc>Runs a process and waits for it to complete.</doc>
+<status status="PASS" start="2025-04-18T23:37:38.835239" elapsed="0.059412"/>
+</kw>
+<kw name="Run Process" owner="Process">
+<msg time="2025-04-18T23:37:38.895302" level="INFO">Starting process:
+python3 scripts/validate_firmware.py</msg>
+<msg time="2025-04-18T23:37:38.897967" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-18T23:37:38.951523" level="INFO">Process completed.</msg>
+<arg>python3</arg>
+<arg>scripts/validate_firmware.py</arg>
+<doc>Runs a process and waits for it to complete.</doc>
+<status status="PASS" start="2025-04-18T23:37:38.895031" elapsed="0.056689"/>
+</kw>
+<kw name="Run Process" owner="Process">
+<msg time="2025-04-18T23:37:38.952315" level="INFO">Starting process:
+python3 scripts/rollback.py</msg>
+<msg time="2025-04-18T23:37:38.955030" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-18T23:37:40.163851" level="INFO">Process completed.</msg>
+<arg>python3</arg>
+<arg>scripts/rollback.py</arg>
+<doc>Runs a process and waits for it to complete.</doc>
+<status status="PASS" start="2025-04-18T23:37:38.952064" elapsed="1.211992"/>
+</kw>
+<kw name="Run Process" owner="Process">
+<msg time="2025-04-18T23:37:40.164689" level="INFO">Starting process:
+python3 scripts/validate_firmware.py</msg>
+<msg time="2025-04-18T23:37:40.167187" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-18T23:37:40.220808" level="INFO">Process completed.</msg>
+<arg>python3</arg>
+<arg>scripts/validate_firmware.py</arg>
+<doc>Runs a process and waits for it to complete.</doc>
+<status status="PASS" start="2025-04-18T23:37:40.164408" elapsed="0.056589"/>
+</kw>
+<kw name="Run Process" owner="Process">
+<msg time="2025-04-18T23:37:40.221625" level="INFO">Starting process:
+python3 scripts/checksum_validator.py</msg>
+<msg time="2025-04-18T23:37:40.224287" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-18T23:37:40.285119" level="INFO">Process completed.</msg>
+<arg>python3</arg>
+<arg>scripts/checksum_validator.py</arg>
+<doc>Runs a process and waits for it to complete.</doc>
+<status status="PASS" start="2025-04-18T23:37:40.221355" elapsed="0.063947"/>
+</kw>
+<status status="PASS" start="2025-04-18T23:37:38.834993" elapsed="1.450619"/>
+</test>
+<status status="PASS" start="2025-04-18T23:37:38.833524" elapsed="1.452367"/>
+</suite>
+<suite id="s1-s3" name="Firmware Update Test" source="/Users/raghav/Desktop/backend/cpap-firmware-simulator/tests/firmware_update_test.robot">
+<test id="s1-s3-t1" name="Valid Firmware Update" line="6">
+<kw name="Run Process" owner="Process">
+<msg time="2025-04-18T23:37:40.288180" level="INFO">Starting process:
+python3 scripts/firmware_updater.py</msg>
+<msg time="2025-04-18T23:37:40.291138" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-18T23:37:40.541981" level="INFO">Process completed.</msg>
+<arg>python3</arg>
+<arg>scripts/firmware_updater.py</arg>
+<doc>Runs a process and waits for it to complete.</doc>
+<status status="PASS" start="2025-04-18T23:37:40.288014" elapsed="0.254170"/>
+</kw>
+<kw name="Run Process" owner="Process">
+<msg time="2025-04-18T23:37:40.542830" level="INFO">Starting process:
+python3 scripts/validate_firmware.py</msg>
+<msg time="2025-04-18T23:37:40.545623" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-18T23:37:40.602650" level="INFO">Process completed.</msg>
+<arg>python3</arg>
+<arg>scripts/validate_firmware.py</arg>
+<doc>Runs a process and waits for it to complete.</doc>
+<status status="PASS" start="2025-04-18T23:37:40.542554" elapsed="0.060279"/>
+</kw>
+<kw name="Run Process" owner="Process">
+<msg time="2025-04-18T23:37:40.603453" level="INFO">Starting process:
+python3 scripts/checksum_validator.py</msg>
+<msg time="2025-04-18T23:37:40.606062" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-04-18T23:37:40.666731" level="INFO">Process completed.</msg>
+<arg>python3</arg>
+<arg>scripts/checksum_validator.py</arg>
+<doc>Runs a process and waits for it to complete.</doc>
+<status status="PASS" start="2025-04-18T23:37:40.603184" elapsed="0.063711"/>
+</kw>
+<status status="PASS" start="2025-04-18T23:37:40.287775" elapsed="0.379414"/>
+</test>
+<status status="PASS" start="2025-04-18T23:37:40.286213" elapsed="0.381268"/>
+</suite>
+<status status="PASS" start="2025-04-18T23:37:38.686271" elapsed="1.981550"/>
+</suite>
+<statistics>
+<total>
+<stat pass="3" fail="0" skip="0">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat name="Tests" id="s1" pass="3" fail="0" skip="0">Tests</stat>
+<stat name="Firmware Failure Test" id="s1-s1" pass="1" fail="0" skip="0">Tests.Firmware Failure Test</stat>
+<stat name="Firmware Recovery Test" id="s1-s2" pass="1" fail="0" skip="0">Tests.Firmware Recovery Test</stat>
+<stat name="Firmware Update Test" id="s1-s3" pass="1" fail="0" skip="0">Tests.Firmware Update Test</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>
