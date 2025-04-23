@@ -1,23 +1,16 @@
-# CPAP Firmware Test Simulator
-This project simulates and tests firmware updates for CPAP devices using a Raspberry Pi. It is built for IEC 62304-aligned medical device software testing with a focus on automation, rollback, and data traceability.
+# Medical Device QA
+This tool validates CPAP firmware against saftety-critical requirements for:  
+- Pressure control accuracy (ISO 80601-2-70).  
+- Alarm thresholds (e.g., apnea detection failure).  
+- Risk mitigation per **IEC 62304** (medical device software standard). 
 
-## Features:
+##  Quality Assurance Applications  
+- **Automated Regression Testing**: Verify firmware updates don’t violate safety limits.  
+- **Fault Injection**: Simulate sensor failures (e.g., pressure sensor drift) to test error handling.  
+- **Traceability**: Maps test cases to regulatory requirements (ISO 13485 Sec. 7.3). 
 
-- Simulates real-world firmware update behavior.
-- Power failure simulation and recovery.
-- Automated testing using Robot Framework.
-- Jenkins CI pipeline for regression detection.
-- File integrity validation using SHA256 checksums.
-- Real-time metrics dashboard via Grafana.
-
-
-
-
-
-## Setup Instructions:
-
-- Clone repo and run pip install -r requirements.txt
-- Connect Raspberry Pi hardware
-- Run robot tests/ to start test suite
-- Launch Jenkins CI
-- Grafana for monitoring
+##  Regulatory Standards  
+Designed to support compliance with:  
+- **ISO 13485:2016** (QMS for Medical Devices)  
+- **FDA 21 CFR Part 820** (Quality System Regulation)  
+- **IEC 62304** (Medical Device Software Lifecycle)  
