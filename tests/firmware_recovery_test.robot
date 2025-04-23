@@ -1,7 +1,7 @@
 *** Settings ***
 Library    OperatingSystem
 Library    Process
-Library    InfluxDBListener    host=localhost    port=8086    database=robot_metrics
+
 
 *** Test Cases ***
 Rollback After Failed Update

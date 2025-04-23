@@ -1,16 +1,50 @@
-# Medical Device QA
-This tool validates CPAP firmware against saftety-critical requirements for:  
-- Pressure control accuracy (ISO 80601-2-70).  
-- Alarm thresholds (e.g., apnea detection failure).  
-- Risk mitigation per **IEC 62304** (medical device software standard). 
+# Medical Device Firmware QA System
 
-##  Quality Assurance Applications  
-- **Automated Regression Testing**: Verify firmware updates don’t violate safety limits.  
-- **Fault Injection**: Simulate sensor failures (e.g., pressure sensor drift) to test error handling.  
-- **Traceability**: Maps test cases to regulatory requirements (ISO 13485 Sec. 7.3). 
+## Overview
+This system provides comprehensive testing for CPAP device firmware, ensuring compliance with medical device regulations and safety standards. It combines firmware validation with operational safety testing.
 
-##  Regulatory Standards  
-Designed to support compliance with:  
-- **ISO 13485:2016** (QMS for Medical Devices)  
-- **FDA 21 CFR Part 820** (Quality System Regulation)  
-- **IEC 62304** (Medical Device Software Lifecycle)  
+## Features
+
+### Core Functionality
+- Firmware update simulation and validation
+- Power failure resilience testing
+- Automated rollback mechanisms
+- Checksum validation for firmware integrity
+
+### Safety Testing
+- Pressure control validation (ISO 80601-2-70)
+- Alarm threshold testing
+- Fault injection capabilities
+- Regulatory requirement traceability
+
+## Compliance Standards
+The system supports validation for:
+- IEC 62304 (Medical Device Software)
+- ISO 13485 (Quality Management)
+- FDA 21 CFR Part 820
+- ISO 80601-2-70 (CPAP specific requirements)
+
+## System Architecture
+
+### Components
+1. **Firmware Management**
+   - Update simulation
+   - Integrity validation
+   - Rollback mechanisms
+
+2. **Safety Validation**
+   - Pressure control testing
+   - Alarm response testing
+   - Fault injection
+
+3. **Monitoring & Reporting**
+   - InfluxDB logging
+   - Grafana dashboards
+   - Jenkins CI integration
+
+## Usage
+
+### Running Tests
+```bash
+robot tests/firmware_update_test.robot
+robot tests/safety_validation_test.robot

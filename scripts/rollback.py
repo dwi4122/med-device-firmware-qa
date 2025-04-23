@@ -1,8 +1,12 @@
+"""Firmware rollback logic using backup image."""
+
 import shutil
 from config import BACKUP_FIRMWARE_PATH, DEVICE_FIRMWARE_PATH
 from influx_logger import log_event
 
+
 def rollback():
+    """Restore backup firmware image to device."""
     try:
         shutil.copyfile(BACKUP_FIRMWARE_PATH, DEVICE_FIRMWARE_PATH)
         log_event("firmware_rollback", {"status": "rolled_back"})
@@ -10,6 +14,7 @@ def rollback():
     except Exception as e:
         log_event("firmware_rollback", {"status": "failed", "error": str(e)})
         raise
+
 
 if __name__ == "__main__":
     rollback()
