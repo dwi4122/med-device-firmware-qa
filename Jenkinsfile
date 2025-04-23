@@ -40,7 +40,7 @@ pipeline {
                     . venv/bin/activate
                     ${PYTHON} scripts/traceability.py > reports/traceability.json
                 '''
-                junit 'reports/output.xml'
+                
                 archiveArtifacts artifacts: 'reports/**'
             }
         }
