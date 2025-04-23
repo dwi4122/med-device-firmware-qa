@@ -40,3 +40,6 @@ Thumbs.db
 # Grafana and Jenkins artifacts
 grafana/*.db
 ci/scripts/*.sh~
+
+#Output files
+results/
