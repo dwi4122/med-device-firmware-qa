@@ -4,6 +4,7 @@ pipeline {
     environment {
         PYTHON = 'python3'
         ROBOT = 'robot'
+        PATH = "${env.HOME}/Library/Python/3.9/bin:$PATH"
     }
     
     stages {
@@ -16,15 +17,21 @@ pipeline {
         
         stage('Setup') {
             steps {
-                sh '/usr/bin/python3 -m pip install -r requirements.txt'
-            }
+                sh '''
+                python3 -m venv venv
+                . venv/bin/activate
+                pip install -r requirements.txt
+                '''
+    }
+
         }
         
-        stage('Test') {
-            steps {
-                sh '$ROBOT --outputdir reports tests/'
-            }
-        }
+        steps {
+        sh '''
+            . venv/bin/activate
+            robot --outputdir reports tests/
+        '''
+    }
         
         stage('Report') {
             steps {
