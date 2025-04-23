@@ -25,3 +25,5 @@ if __name__ == "__main__":
         print("Firmware is valid.")
     else:
         print("Firmware is incomplete or corrupt.")
+
+

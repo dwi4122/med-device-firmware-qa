@@ -1,7 +1,7 @@
 """Alarm testing module for CPAP firmware validation.
 
 This module provides test functions for apnea alarm functionality,
-following medical device standards and PEP 8 guidelines.
+following medical device standards.
 """
 
 from robot.api.deco import keyword
