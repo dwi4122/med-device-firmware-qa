@@ -16,7 +16,7 @@ pipeline {
         
         stage('Setup') {
             steps {
-                sh 'pip install -r requirements.txt'
+                sh '/usr/bin/python3 -m pip install -r requirements.txt'
             }
         }
         
@@ -40,12 +40,5 @@ pipeline {
         }
     }
     
-    post {
-        always {
-            // Notify stakeholders
-            emailext body: '${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}\n\nResults: ${env.BUILD_URL}testReport',
-            subject: 'Medical Device Test Results',
-            to: 'qa-team@example.com'
-        }
-    }
+   
 }
