@@ -1,99 +1,110 @@
-"""Parse Robot Framework results and send metrics to InfluxDB."""
+"""Parse Robot Framework results and send metrics to InfluxDB and Grafana."""
 
 import xml.etree.ElementTree as ET
 import requests
 import time
 from datetime import datetime
-
-# Configuration
-INFLUX_URL = "http://localhost:8086/write?db=cpap_tests"
-MAX_RETRIES = 3
-RETRY_DELAY = 2  # seconds
+from typing import Dict, List, Optional, Tuple
 
 
-def parse_robot_results(xml_file):
-    """Extract test statistics from Robot Framework output.xml.
+class ResultParser:
+    """Handles parsing and sending test results to monitoring systems."""
+    
+    def __init__(self, influx_host: str = 'localhost', influx_port: int = 8086,
+                 influx_db: str = 'cpap_tests'):
+        """Initialize with InfluxDB connection details."""
+        self.influx_url = f"http://{influx_host}:{influx_port}/write?db={influx_db}"
+        self.max_retries = 3
+        self.retry_delay = 2  # seconds
 
-    Args:
-        xml_file (str): Path to the Robot Framework output XML.
+    def parse_robot_results(self, xml_file: str) -> Tuple[Optional[Dict], Optional[List[str]]]:
+        """Extract test statistics from Robot Framework output.xml.
 
-    Returns:
-        tuple: (metrics dict, list of failed test names)
-    """
-    try:
-        tree = ET.parse(xml_file)
-        root = tree.getroot()
+        Args:
+            xml_file: Path to the Robot Framework output XML.
 
-        stats = {
-            "total": 0,
-            "passed": 0,
-            "failed": 0,
-            "elapsed": int(root.attrib.get("elapsedtime", 0)) // 1000
-        }
+        Returns:
+            tuple: (metrics dict, list of failed test names) or (None, None) on error
+        """
+        try:
+            tree = ET.parse(xml_file)
+            root = tree.getroot()
 
-        total_stat = root.find("statistics/total/stat")
-        if total_stat is not None:
-            stats["passed"] = int(total_stat.attrib.get("pass", 0))
-            stats["failed"] = int(total_stat.attrib.get("fail", 0))
-            stats["total"] = stats["passed"] + stats["failed"]
+            stats = {
+                'total': 0,
+                'passed': 0,
+                'failed': 0,
+                'elapsed': int(root.attrib.get('elapsedtime', 0)) // 1000
+            }
 
-        failed_tests = [
-            test.attrib["name"]
-            for test in root.findall(".//test/status[@status='FAIL']/..")
-        ]
+            total_stat = root.find('statistics/total/stat')
+            if total_stat is not None:
+                stats['passed'] = int(total_stat.attrib.get('pass', 0))
+                stats['failed'] = int(total_stat.attrib.get('fail', 0))
+                stats['total'] = stats['passed'] + stats['failed']
 
-        return stats, failed_tests
+            failed_tests = [
+                test.attrib['name']
+                for test in root.findall('.//test/status[@status="FAIL"]/..')
+            ]
 
-    except (ET.ParseError, FileNotFoundError) as e:
-        print(f"⚠️ Error parsing {xml_file}: {str(e)}")
-        return None, None
+            return stats, failed_tests
 
+        except (ET.ParseError, FileNotFoundError) as e:
+            print(f'Error parsing {xml_file}: {str(e)}')
+            return None, None
 
-def send_to_influx(metrics, failed_tests=None):
-    """Sends test metrics to InfluxDB with retry logic.
+    def send_to_influx(self, metrics: Dict, failed_tests: Optional[List[str]] = None) -> bool:
+        """Send test metrics to InfluxDB with retry logic.
 
-    Args:
-        metrics (dict): Parsed test metrics.
-        failed_tests (list): Optional list of failed test names.
+        Args:
+            metrics: Parsed test metrics.
+            failed_tests: Optional list of failed test names.
 
-    Returns:
-        bool: True on success, False otherwise.
-    """
-    if not metrics:
-        return False
+        Returns:
+            bool: True on success, False otherwise.
+        """
+        if not metrics:
+            return False
 
-    timestamp = int(time.time() * 1e9)  # nanoseconds
-    base_data = (
-        f"robot_tests,device_type=CPAP "
-        f"total={metrics['total']},passed={metrics['passed']},"
-        f"failed={metrics['failed']},duration={metrics['elapsed']} {timestamp}"
-    )
-
-    if failed_tests:
-        tests_str = ",".join(failed_tests).replace(" ", "\\ ")
-        base_data += (
-            f"\nrobot_tests,failure_detail tests=\"{tests_str}\" {timestamp}"
+        timestamp = int(time.time() * 1e9)  # nanoseconds
+        base_data = (
+            f'robot_tests,device_type=CPAP '
+            f'total={metrics["total"]},passed={metrics["passed"]},'
+            f'failed={metrics["failed"]},duration={metrics["elapsed"]} '
+            f'{timestamp}'
         )
 
-    for attempt in range(MAX_RETRIES):
-        try:
-            response = requests.post(INFLUX_URL, data=base_data, timeout=5)
-            if response.status_code == 204:
-                print(f"✅ Metrics sent to InfluxDB at {datetime.now()}")
-                return True
-            print(f"⚠️ Attempt {attempt + 1}: InfluxDB error {response.status_code}")
-        except requests.exceptions.RequestException as e:
-            print(f"⚠️ Attempt {attempt + 1}: Connection failed - {str(e)}")
+        if failed_tests:
+            tests_str = ','.join(failed_tests).replace(' ', '\\ ')
+            base_data += (
+                f'\nrobot_tests,failure_detail tests="{tests_str}" {timestamp}'
+            )
 
-        if attempt < MAX_RETRIES - 1:
-            time.sleep(RETRY_DELAY)
+        for attempt in range(self.max_retries):
+            try:
+                response = requests.post(
+                    self.influx_url,
+                    data=base_data,
+                    timeout=5
+                )
+                if response.status_code == 204:
+                    print(f'✅ Metrics sent to InfluxDB at {datetime.now()}')
+                    return True
+                print(f'⚠️ Attempt {attempt + 1}: InfluxDB error {response.status_code}')
+            except requests.exceptions.RequestException as e:
+                print(f'⚠️ Attempt {attempt + 1}: Connection failed - {str(e)}')
 
-    print("❌ All retries failed")
-    return False
+            if attempt < self.max_retries - 1:
+                time.sleep(self.retry_delay)
+
+        print('❌ All retries failed')
+        return False
 
 
-if __name__ == "__main__":
-    metrics, failed_tests = parse_robot_results("output.xml")
+if __name__ == '__main__':
+    parser = ResultParser()
+    metrics, failed_tests = parser.parse_robot_results('output.xml')
 
     if metrics:
         print(f"""\nTest Results:
@@ -103,6 +114,6 @@ if __name__ == "__main__":
         Duration: {metrics['elapsed']}s
         Failed Tests: {failed_tests or 'None'}""")
 
-        send_to_influx(metrics, failed_tests)
+        parser.send_to_influx(metrics, failed_tests)
     else:
-        print("No valid metrics to send.")
+        print('No valid metrics to send.')
