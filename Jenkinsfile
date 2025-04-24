@@ -8,7 +8,7 @@ pipeline {
         INFLUXDB_HOST = 'localhost'
         INFLUXDB_PORT = '3000'
         INFLUXDB_DB = 'cpap_tests'
-        GRAFANA_API_KEY = credentials('grafana-api-key')
+        GRAFANA_API_KEY = credentials('GRAFANA_API_KEY')
     }
 
     triggers {
