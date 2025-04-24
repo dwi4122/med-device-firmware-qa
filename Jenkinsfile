@@ -7,6 +7,10 @@ pipeline {
         PATH = "${env.HOME}/Library/Python/3.9/bin:$PATH"
     }
 
+    triggers {
+        githubPush()
+    }
+
     stages {
         stage('Checkout') {
             steps {
