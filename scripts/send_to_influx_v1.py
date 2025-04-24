@@ -4,9 +4,6 @@ import os
 import time
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 class ResultSender:
@@ -26,7 +23,9 @@ class ResultSender:
         }
         self.timeout = 5
 
-    def parse_results(self, xml_file: str) -> Tuple[Optional[Dict], Optional[List[str]]]:
+    def parse_results(
+        self, xml_file: str
+    ) -> Tuple[Optional[Dict], Optional[List[str]]]:
         try:
             tree = ET.parse(xml_file)
             root = tree.getroot()
@@ -35,17 +34,19 @@ class ResultSender:
                 "total": 0,
                 "passed": 0,
                 "failed": 0,
-                "elapsed": int(float(root.get("elapsedtime", 0)) // 1000)
+                "elapsed": int(float(root.get("elapsedtime", 0)) // 1000),
             }
 
             total_stat = root.find("statistics/total/stat")
             if total_stat is not None:
-                metrics.update({
-                    "passed": int(total_stat.get("pass", 0)),
-                    "failed": int(total_stat.get("fail", 0)),
-                    "total": int(total_stat.get("pass", 0)) +
-                             int(total_stat.get("fail", 0))
-                })
+                metrics.update(
+                    {
+                        "passed": int(total_stat.get("pass", 0)),
+                        "failed": int(total_stat.get("fail", 0)),
+                        "total": int(total_stat.get("pass", 0))
+                        + int(total_stat.get("fail", 0)),
+                    }
+                )
 
             failed_tests = [
                 test.get("name")
@@ -73,11 +74,7 @@ class ResultSender:
         )
 
         try:
-            response = requests.post(
-                self.influx_url,
-                data=data,
-                timeout=self.timeout
-            )
+            response = requests.post(self.influx_url, data=data, timeout=self.timeout)
             if response.status_code == 204:
                 return True
             print(f"InfluxDB error {response.status_code}: {response.text}")
@@ -88,14 +85,14 @@ class ResultSender:
 
     def send_to_grafana(self, status: str) -> bool:
         if not os.getenv("GRAFANA_API_KEY"):
-            print("Grafana API token not found. Set GRAFANA_API_KEY in .env")
+            print("Grafana API token not found. Set GRAFANA_API_KEY in Jenkins credentials")
             return False
 
         now_ms = int(time.time() * 1000)
         data = {
             "text": f"Test {status} at {datetime.now().isoformat()}",
             "tags": ["jenkins", "robotframework"],
-            "time": now_ms
+            "time": now_ms,
         }
 
         dashboard_id = os.getenv("GRAFANA_DASHBOARD_ID")
@@ -104,10 +101,7 @@ class ResultSender:
 
         try:
             res = requests.post(
-                self.grafana_url,
-                json=data,
-                headers=self.headers,
-                timeout=self.timeout
+                self.grafana_url, json=data, headers=self.headers, timeout=self.timeout
             )
             res.raise_for_status()
             return True
@@ -120,10 +114,7 @@ class ResultSender:
 
 
 if __name__ == "__main__":
-    if not os.path.exists(".env"):
-        print("Missing .env configuration file")
-        exit(1)
-
+    # No need to load .env, as secrets are injected by Jenkins.
     sender = ResultSender()
     metrics, failed_tests = sender.parse_results("output.xml")
 

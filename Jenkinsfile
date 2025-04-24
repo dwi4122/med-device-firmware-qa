@@ -2,11 +2,13 @@ pipeline {
     agent any
 
     environment {
-        GRAFANA_API_KEY = credentials('grafana-api-key')
-        INFLUXDB_HOST = 'localhost'
-        INFLUXDB_PORT = '8086'
-        INFLUXDB_DB = 'cpap_tests'
-        GRAFANA_URL = 'http://localhost:3000'
+        GRAFANA_API_KEY   = credentials('GRAFANA_API_KEY')
+        INFLUXDB_HOST     = credentials('NFLUXDB_HOST')
+        INFLUXDB_PORT     = credentials('INFLUXDB_PORT')
+        INFLUXDB_DB       = credentials('INFLUXDB_DB')
+        INFLUXDB_USER     = credentials('influx-user')
+        INFLUXDB_PASSWORD = credentials('influx-password')
+        GRAFANA_URL       = credentials('GRAFANA_URL')
     }
 
     triggers {
