@@ -8,19 +8,26 @@ from typing import Dict, List, Optional, Tuple
 
 class ResultSender:
     def __init__(self):
+        # InfluxDB configuration
         self.influx_url = (
             f"http://{os.getenv('INFLUXDB_HOST', 'localhost')}:"
             f"{os.getenv('INFLUXDB_PORT', '8086')}/write?"
             f"db={os.getenv('INFLUXDB_DB', 'cpap_tests')}"
             f"&precision=ns"
         )
+        
+        # Grafana configuration
         self.grafana_url = (
             f"{os.getenv('GRAFANA_URL', 'http://localhost:3000')}/api/annotations"
         )
         self.headers = {
-            "Authorization": f"Bearer {os.getenv('GRAFANA_API_KEY')}",
             "Content-Type": "application/json"
         }
+        # Check for API key in both possible locations
+        grafana_api_key = os.getenv('GRAFANA_API_KEY') or os.getenv('GRAFANA_TOKEN')
+        if grafana_api_key:
+            self.headers["Authorization"] = f"Bearer {grafana_api_key}"
+
         self.timeout = 5
 
     def parse_results(
@@ -84,8 +91,8 @@ class ResultSender:
         return False
 
     def send_to_grafana(self, status: str) -> bool:
-        if not os.getenv("GRAFANA_API_KEY"):
-            print("Grafana API token not found. Set GRAFANA_API_KEY in Jenkins credentials")
+        if "Authorization" not in self.headers:
+            print("Grafana API token not found. Set GRAFANA_API_KEY or GRAFANA_TOKEN environment variable")
             return False
 
         now_ms = int(time.time() * 1000)
@@ -114,7 +121,6 @@ class ResultSender:
 
 
 if __name__ == "__main__":
-    # No need to load .env, as secrets are injected by Jenkins.
     sender = ResultSender()
     metrics, failed_tests = sender.parse_results("output.xml")
 

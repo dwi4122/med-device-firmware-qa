@@ -2,13 +2,11 @@ pipeline {
     agent any
 
     environment {
-        GRAFANA_API_KEY   = credentials('GRAFANA_API_KEY')
-        INFLUXDB_HOST     = credentials('NFLUXDB_HOST')
-        INFLUXDB_PORT     = credentials('INFLUXDB_PORT')
-        INFLUXDB_DB       = credentials('INFLUXDB_DB')
-        INFLUXDB_USER     = credentials('influx-user')
-        INFLUXDB_PASSWORD = credentials('influx-password')
-        GRAFANA_URL       = credentials('GRAFANA_URL')
+        // Credentials will be injected via withCredentials
+        INFLUXDB_HOST     = 'localhost'  // Replace with actual host or use credentials
+        INFLUXDB_PORT     = '8086'
+        INFLUXDB_DB       = 'cpap_tests'
+        GRAFANA_URL      = 'http://localhost:3000'  // Replace with actual URL
     }
 
     triggers {
@@ -46,41 +44,18 @@ pipeline {
 
         stage('Report') {
             steps {
-                sh '''
-                    . venv/bin/activate
-                    python3 scripts/traceability.py > reports/traceability.json
-                    python3 scripts/send_to_influx_v1.py reports/output.xml
-                '''
-                archiveArtifacts artifacts: 'reports/**'
-            }
-        }
-
-        stage('Grafana Annotation') {
-            steps {
-                script {
-                    def result = currentBuild.currentResult
-                    sh """
+                withCredentials([
+                    string(credentialsId: 'GRAFANA_API_KEY', variable: 'GRAFANA_API_KEY'),
+                    string(credentialsId: 'INFLUXDB_USER', variable: 'INFLUXDB_USER'),
+                    string(credentialsId: 'INFLUXDB_PASSWORD', variable: 'INFLUXDB_PASSWORD')
+                ]) {
+                    sh '''
                         . venv/bin/activate
-                        python3 -c "
-import requests
-import os
-headers = {
-    'Authorization': f'Bearer {os.environ['GRAFANA_API_KEY']}',
-    'Content-Type': 'application/json'
-}
-data = {
-    'text': f'Build ${env.BUILD_NUMBER} ${result}',
-    'tags': ['jenkins', '${env.JOB_NAME}', '${result}'.lower()],
-}
-response = requests.post(
-    '${env.GRAFANA_URL}/api/annotations',
-    json=data,
-    headers=headers
-)
-print(f'Grafana annotation status: {response.status_code}')
-                        "
-                    """
+                        python3 scripts/traceability.py > reports/traceability.json
+                        python3 scripts/send_to_influx_v1.py reports/output.xml
+                    '''
                 }
+                archiveArtifacts artifacts: 'reports/**'
             }
         }
     }
