@@ -1,119 +1,144 @@
-"""Parse Robot Framework results and send metrics to InfluxDB and Grafana."""
-
 import xml.etree.ElementTree as ET
 import requests
+import os
 import time
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
-class ResultParser:
-    """Handles parsing and sending test results to monitoring systems."""
-    
-    def __init__(self, influx_host: str = 'localhost', influx_port: int = 8086,
-                 influx_db: str = 'cpap_tests'):
-        """Initialize with InfluxDB connection details."""
-        self.influx_url = f"http://{influx_host}:{influx_port}/write?db={influx_db}"
-        self.max_retries = 3
-        self.retry_delay = 2  # seconds
+class ResultSender:
+    def __init__(self):
+        self.influx_url = (
+            f"http://{os.getenv('INFLUXDB_HOST', 'localhost')}:"
+            f"{os.getenv('INFLUXDB_PORT', '8086')}/write?"
+            f"db={os.getenv('INFLUXDB_DB', 'cpap_tests')}"
+            f"&precision=ns"
+        )
+        self.grafana_url = (
+            f"{os.getenv('GRAFANA_URL', 'http://localhost:3000')}/api/annotations"
+        )
+        self.headers = {
+            "Authorization": f"Bearer {os.getenv('GRAFANA_API_KEY')}",
+            "Content-Type": "application/json"
+        }
+        self.timeout = 5
 
-    def parse_robot_results(self, xml_file: str) -> Tuple[Optional[Dict], Optional[List[str]]]:
-        """Extract test statistics from Robot Framework output.xml.
-
-        Args:
-            xml_file: Path to the Robot Framework output XML.
-
-        Returns:
-            tuple: (metrics dict, list of failed test names) or (None, None) on error
-        """
+    def parse_results(self, xml_file: str) -> Tuple[Optional[Dict], Optional[List[str]]]:
         try:
             tree = ET.parse(xml_file)
             root = tree.getroot()
 
-            stats = {
-                'total': 0,
-                'passed': 0,
-                'failed': 0,
-                'elapsed': int(root.attrib.get('elapsedtime', 0)) // 1000
+            metrics = {
+                "total": 0,
+                "passed": 0,
+                "failed": 0,
+                "elapsed": int(float(root.get("elapsedtime", 0)) // 1000)
             }
 
-            total_stat = root.find('statistics/total/stat')
+            total_stat = root.find("statistics/total/stat")
             if total_stat is not None:
-                stats['passed'] = int(total_stat.attrib.get('pass', 0))
-                stats['failed'] = int(total_stat.attrib.get('fail', 0))
-                stats['total'] = stats['passed'] + stats['failed']
+                metrics.update({
+                    "passed": int(total_stat.get("pass", 0)),
+                    "failed": int(total_stat.get("fail", 0)),
+                    "total": int(total_stat.get("pass", 0)) +
+                             int(total_stat.get("fail", 0))
+                })
 
             failed_tests = [
-                test.attrib['name']
-                for test in root.findall('.//test/status[@status="FAIL"]/..')
+                test.get("name")
+                for test in root.findall(".//test")
+                if test.find("status").get("status") == "FAIL"
             ]
 
-            return stats, failed_tests
+            return metrics, failed_tests
 
-        except (ET.ParseError, FileNotFoundError) as e:
-            print(f'Error parsing {xml_file}: {str(e)}')
+        except (ET.ParseError, FileNotFoundError, AttributeError) as e:
+            print(f"XML parsing error: {str(e)}")
             return None, None
 
-    def send_to_influx(self, metrics: Dict, failed_tests: Optional[List[str]] = None) -> bool:
-        """Send test metrics to InfluxDB with retry logic.
-
-        Args:
-            metrics: Parsed test metrics.
-            failed_tests: Optional list of failed test names.
-
-        Returns:
-            bool: True on success, False otherwise.
-        """
-        if not metrics:
+    def send_to_influx(self, metrics: Dict) -> bool:
+        if not metrics or metrics.get("total", 0) == 0:
+            print("No valid metrics to send")
             return False
 
-        timestamp = int(time.time() * 1e9)  # nanoseconds
-        base_data = (
-            f'robot_tests,device_type=CPAP '
-            f'total={metrics["total"]},passed={metrics["passed"]},'
-            f'failed={metrics["failed"]},duration={metrics["elapsed"]} '
-            f'{timestamp}'
+        timestamp = int(time.time() * 1e9)
+        data = (
+            f"robot_tests,device_type=CPAP "
+            f"passed={metrics['passed']},failed={metrics['failed']},"
+            f"total={metrics['total']},duration={metrics['elapsed']} "
+            f"{timestamp}"
         )
 
-        if failed_tests:
-            tests_str = ','.join(failed_tests).replace(' ', '\\ ')
-            base_data += (
-                f'\nrobot_tests,failure_detail tests="{tests_str}" {timestamp}'
+        try:
+            response = requests.post(
+                self.influx_url,
+                data=data,
+                timeout=self.timeout
             )
+            if response.status_code == 204:
+                return True
+            print(f"InfluxDB error {response.status_code}: {response.text}")
+        except requests.exceptions.RequestException as e:
+            print(f"InfluxDB connection error: {str(e)}")
 
-        for attempt in range(self.max_retries):
-            try:
-                response = requests.post(
-                    self.influx_url,
-                    data=base_data,
-                    timeout=5
-                )
-                if response.status_code == 204:
-                    print(f'✅ Metrics sent to InfluxDB at {datetime.now()}')
-                    return True
-                print(f'⚠️ Attempt {attempt + 1}: InfluxDB error {response.status_code}')
-            except requests.exceptions.RequestException as e:
-                print(f'⚠️ Attempt {attempt + 1}: Connection failed - {str(e)}')
+        return False
 
-            if attempt < self.max_retries - 1:
-                time.sleep(self.retry_delay)
+    def send_to_grafana(self, status: str) -> bool:
+        if not os.getenv("GRAFANA_API_KEY"):
+            print("Grafana API token not found. Set GRAFANA_API_KEY in .env")
+            return False
 
-        print('❌ All retries failed')
+        now_ms = int(time.time() * 1000)
+        data = {
+            "text": f"Test {status} at {datetime.now().isoformat()}",
+            "tags": ["jenkins", "robotframework"],
+            "time": now_ms
+        }
+
+        dashboard_id = os.getenv("GRAFANA_DASHBOARD_ID")
+        if dashboard_id:
+            data["dashboardId"] = int(dashboard_id)
+
+        try:
+            res = requests.post(
+                self.grafana_url,
+                json=data,
+                headers=self.headers,
+                timeout=self.timeout
+            )
+            res.raise_for_status()
+            return True
+        except requests.exceptions.HTTPError as e:
+            print(f"Grafana error {res.status_code}: {res.text}")
+        except requests.exceptions.RequestException as e:
+            print(f"Grafana connection error: {e}")
+
         return False
 
 
-if __name__ == '__main__':
-    parser = ResultParser()
-    metrics, failed_tests = parser.parse_robot_results('output.xml')
+if __name__ == "__main__":
+    if not os.path.exists(".env"):
+        print("Missing .env configuration file")
+        exit(1)
+
+    sender = ResultSender()
+    metrics, failed_tests = sender.parse_results("output.xml")
 
     if metrics:
-        print(f"""\nTest Results:
-        Total: {metrics['total']}
-        Passed: {metrics['passed']}
-        Failed: {metrics['failed']}
-        Duration: {metrics['elapsed']}s
-        Failed Tests: {failed_tests or 'None'}""")
+        print(f"Passed: {metrics['passed']}, Failed: {metrics['failed']}")
 
-        parser.send_to_influx(metrics, failed_tests)
+        if sender.send_to_influx(metrics):
+            print("Successfully sent to InfluxDB")
+        else:
+            print("Failed to send to InfluxDB")
+
+        status = "SUCCESS" if metrics["failed"] == 0 else "FAILURE"
+        if sender.send_to_grafana(status):
+            print("Successfully updated Grafana")
+        else:
+            print("Failed to update Grafana")
     else:
-        print('No valid metrics to send.')
+        print("No test results to process")
