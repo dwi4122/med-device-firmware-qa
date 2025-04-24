@@ -2,13 +2,11 @@ pipeline {
     agent any
 
     environment {
-        PYTHON = 'python3'
-        ROBOT = 'robot'
-        PATH = "${env.HOME}/Library/Python/3.9/bin:$PATH"
+        GRAFANA_API_KEY = credentials('grafana-api-key') 
         INFLUXDB_HOST = 'localhost'
-        INFLUXDB_PORT = '3000'
+        INFLUXDB_PORT = '8086'
         INFLUXDB_DB = 'cpap_tests'
-        GRAFANA_API_KEY = credentials('GRAFANA_API_KEY')
+        GRAFANA_URL = 'http://localhost:3000'
     }
 
     triggers {
