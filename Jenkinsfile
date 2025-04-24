@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        GRAFANA_API_KEY = credentials('grafana-api-key') 
+        GRAFANA_API_KEY = credentials('grafana-api-key')
         INFLUXDB_HOST = 'localhost'
         INFLUXDB_PORT = '8086'
         INFLUXDB_DB = 'cpap_tests'
@@ -26,6 +26,7 @@ pipeline {
                 sh '''
                     python3 -m venv venv
                     . venv/bin/activate
+                    pip install --upgrade pip
                     pip install -r requirements.txt
                     pip install influxdb requests
                 '''
@@ -45,8 +46,8 @@ pipeline {
             steps {
                 sh '''
                     . venv/bin/activate
-                    ${PYTHON} scripts/traceability.py > reports/traceability.json
-                    ${PYTHON} scripts/send_to_influx_v1.py reports/output.xml
+                    python3 scripts/traceability.py > reports/traceability.json
+                    python3 scripts/send_to_influx_v1.py reports/output.xml
                 '''
                 archiveArtifacts artifacts: 'reports/**'
             }
@@ -56,29 +57,26 @@ pipeline {
             steps {
                 script {
                     def result = currentBuild.currentResult
-                    def dashboardUrl = "http://your-grafana-host:3000/d/your-dashboard-id"
-                    
                     sh """
-                    . venv/bin/activate
-                    ${PYTHON} -c "
+                        . venv/bin/activate
+                        python3 -c "
 import requests
 import os
 headers = {
-    'Authorization': f'Bearer {env.GRAFANA_API_KEY}',
+    'Authorization': f'Bearer {os.environ['GRAFANA_API_KEY']}',
     'Content-Type': 'application/json'
 }
 data = {
-    'text': f'Build {env.BUILD_NUMBER} {result}',
-    'tags': ['jenkins', '${env.JOB_NAME}', result.toLowerCase()],
-    'dashboardId': 'your-dashboard-id'
+    'text': f'Build ${env.BUILD_NUMBER} ${result}',
+    'tags': ['jenkins', '${env.JOB_NAME}', '${result}'.lower()],
 }
 response = requests.post(
-    'http://your-grafana-host:3000/api/annotations',
+    '${env.GRAFANA_URL}/api/annotations',
     json=data,
     headers=headers
 )
 print(f'Grafana annotation status: {response.status_code}')
-                    "
+                        "
                     """
                 }
             }
